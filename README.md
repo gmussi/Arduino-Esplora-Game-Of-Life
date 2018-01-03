@@ -33,3 +33,7 @@ Stops the automatic transition
 
 ### JOYSTICK (MOVE, CHANGE STATE)
 Use the joystick to move the cursor across the grid. Click the joystick to invert the state of the cell the cursor is currently on top of.
+
+## Feedback?
+
+I appreciate feedback of any kind. Just give a message or post in issues. Thanks!
