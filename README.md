@@ -2,7 +2,9 @@
 
 ## Introduction
 This project is a Conway's Game of Life implementation for Arduino Esplora + LCD Screen. The application is quite interactive, as you can see in the instructions below.
+
 The project was developed using Arduino IDE 1.8.5.
+
 To install the application, simply compile the Sketch and upload to your Esplora with LCD screen plugged in the frontal interface.
 
 ## Hardware
