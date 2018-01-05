@@ -5,6 +5,9 @@
    https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
 
    Author: Guilherme Mussi <https://github.com/gmussi>
+   
+   Github project page: https://github.com/gmussi/ArduinoEsploraGameOfLife
+   Arduino Project Hub:   https://create.arduino.cc/projecthub/imagile/conway-s-game-of-life-79bb05
 
  *********************************************************************************
 
