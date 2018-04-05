@@ -1,51 +1,4 @@
-/**********************************************************************************
-
-   This is an implementation of the Conway's Game of Life for the Arduino Esplora.
-   To learn more about Game of Life, refer to the following:
-   https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-
-   Author: Guilherme Mussi <https://github.com/gmussi>
-   
-   Github project page: https://github.com/gmussi/ArduinoEsploraGameOfLife
-   Arduino Project Hub:   https://create.arduino.cc/projecthub/imagile/conway-s-game-of-life-79bb05
-
- *********************************************************************************
-
-   USING THE APPLICATION:
-
-   Slider:
-     Sets the amount (in %) of black squares when randomizing a generation
-   UP button:
-     Resets the generation with a new random one
-   DOWN button:
-     Pauses the generations and stay with the current generation on the screen
-   LEFT button:
-     Automatically advances from one generation to the next ("play")
-   RIGHT button:
-     Advances one generation and then pauses
-   Joystick:
-     Select a specific cell in the grid.
-     Click the joystick to invert the value of that cell.
-
- **********************************************************************************
-
-   HARDWARE:
-
-   For the hardware components, I am using the following:
-
-   Arduino Esplora - https://store.arduino.cc/arduino-esplora
-   Arduino LCD Screen - https://store.arduino.cc/arduino-lcd-screen
-
-   The scren resolution is 160 pixels wide and 128 pixels high.
-
- **********************************************************************************
-
-   LIBRARIES:
-
-   Includes the libraries for the Arduino Esplora, SPI and TFT.
-
- ***********************************************************************************
-*/
+#include <Arduino.h>
 #include <Esplora.h>
 #include <SPI.h>
 #include <TFT.h>
@@ -62,23 +15,33 @@ int lastC = 0; // last cursor column
 
 boolean lastJoystickButton = HIGH; // last joystick button state
 
-void setup() {
-  // initialize the dispay
-  EsploraTFT.begin();
-
-  // make the background white
-  EsploraTFT.background(255, 255, 255);
-
-  // create seed to use the random function
-  randomSeed(Esplora.readSlider());
-
-  // initialize cells with random values
-  randomize();
+/**
+ * Sets the color of the cell on the following rules:
+ *
+ * Cell is alive, cursor is on top: Green
+ * Cell is dead, cursor is on top: Orange
+ * Cell is alive: Black
+ * Cell is dead: White
+ */
+void setColor(boolean value, boolean highlighted) {
+  if (value && highlighted) {
+    EsploraTFT.stroke(0, 204, 0);
+    EsploraTFT.fill(0, 204, 0);
+  } else if (value && !highlighted) {
+    EsploraTFT.stroke(0, 0, 0);
+    EsploraTFT.fill(0, 0, 0);
+  } else if (highlighted) {
+    EsploraTFT.stroke(255, 153, 51);
+    EsploraTFT.fill(255, 153, 51);
+  } else {
+    EsploraTFT.stroke(255, 255, 255);
+    EsploraTFT.fill(255, 255, 255);
+  }
 }
 
 /**
  * This method transitions the current state to the next state, using the following rules:
- *  
+ *
  * 1. Any live cell with fewer than two live neighbours dies, as if caused by underpopulation.
  * 2. Any live cell with two or three live neighbours lives on to the next generation.
  * 3. Any live cell with more than three live neighbours dies, as if by overpopulation.
@@ -136,7 +99,7 @@ void next() {
 
       // set color of this cell
       setColor(value, highlighted);
-      
+
       // draw the cell
       EsploraTFT.rect(c * 5, r * 4, 5, 4);
     }
@@ -201,80 +164,6 @@ void invertCurrentCell() {
 }
 
 /**
- * Main application loop
- * 
- * First, check if cursor needs to move in any direction.
- * If it dooes, move the cursor and apply a small delay, so that it does not move too fast.
- * 
- * Then check for each input button to see if any action must be performed.
- * 
- * In case the application is in PLAY state, transition to the next state automatically.
- */
-void loop () {
-  boolean advance = false;
-  int joyX = Esplora.readJoystickX(); // read value of joystick
-  int joyY = Esplora.readJoystickY(); // read value of joystick
-
-  if (joyX > 256) { // go left
-    moveCursorLeft();
-    delay(100); 
-  } else if (joyX < -256) { // go right
-    moveCursorRight();
-    delay(100);
-  }
-
-  if (joyY < -256) { // go down
-    moveCursorDown();
-    delay(100); 
-  } else if (joyY > 256) { // go up
-    moveCursorUp();
-    delay(100); 
-  }
-
-  int joystickButton = Esplora.readJoystickButton();
-  if (Esplora.readButton(SWITCH_UP) == LOW) {
-    randomize();
-  } else if (Esplora.readButton(SWITCH_DOWN) == LOW) {
-    play = false;
-  } else if (Esplora.readButton(SWITCH_RIGHT) == LOW) {
-    play = true;
-  } else if (Esplora.readButton(SWITCH_LEFT) == LOW) {
-    advance = true;
-  } else if (joystickButton == LOW && lastJoystickButton == HIGH) {
-    invertCurrentCell();
-  }
-  if (advance || play) {
-    next();
-  }
-
-  lastJoystickButton = joystickButton;
-}
-
-/**
- * Sets the color of the cell on the following rules:
- * 
- * Cell is alive, cursor is on top: Green
- * Cell is dead, cursor is on top: Orange
- * Cell is alive: Black
- * Cell is dead: White
- */
-void setColor(boolean value, boolean highlighted) {
-  if (value && highlighted) {
-    EsploraTFT.stroke(0, 204, 0);
-    EsploraTFT.fill(0, 204, 0);
-  } else if (value && !highlighted) {
-    EsploraTFT.stroke(0, 0, 0);
-    EsploraTFT.fill(0, 0, 0);
-  } else if (highlighted) {
-    EsploraTFT.stroke(255, 153, 51);
-    EsploraTFT.fill(255, 153, 51);
-  } else {
-    EsploraTFT.stroke(255, 255, 255);
-    EsploraTFT.fill(255, 255, 255);
-  }
-}
-
-/**
  * Creates a random state.
  * The slider can be used to control the percentage of alive and dead cells.
  * The more to the right the slider is, the more alive cells are created.
@@ -299,4 +188,68 @@ void randomize() {
       EsploraTFT.rect(c * 5, r * 4, 5, 4);
     }
   }
+}
+
+void setup() {
+  // initialize the dispay
+  EsploraTFT.begin();
+
+  // make the background white
+  EsploraTFT.background(255, 255, 255);
+
+  // create seed to use the random function
+  randomSeed(Esplora.readSlider());
+
+  // initialize cells with random values
+  randomize();
+}
+
+/**
+ * Main application loop
+ *
+ * First, check if cursor needs to move in any direction.
+ * If it dooes, move the cursor and apply a small delay, so that it does not move too fast.
+ *
+ * Then check for each input button to see if any action must be performed.
+ *
+ * In case the application is in PLAY state, transition to the next state automatically.
+ */
+void loop () {
+  boolean advance = false;
+  int joyX = Esplora.readJoystickX(); // read value of joystick
+  int joyY = Esplora.readJoystickY(); // read value of joystick
+
+  if (joyX > 256) { // go left
+    moveCursorLeft();
+    delay(100);
+  } else if (joyX < -256) { // go right
+    moveCursorRight();
+    delay(100);
+  }
+
+  if (joyY < -256) { // go down
+    moveCursorDown();
+    delay(100);
+  } else if (joyY > 256) { // go up
+    moveCursorUp();
+    delay(100);
+  }
+
+  int joystickButton = Esplora.readJoystickButton();
+  if (Esplora.readButton(SWITCH_UP) == LOW) {
+    randomize();
+  } else if (Esplora.readButton(SWITCH_DOWN) == LOW) {
+    play = false;
+  } else if (Esplora.readButton(SWITCH_RIGHT) == LOW) {
+    play = true;
+  } else if (Esplora.readButton(SWITCH_LEFT) == LOW) {
+    advance = true;
+  } else if (joystickButton == LOW && lastJoystickButton == HIGH) {
+    invertCurrentCell();
+  }
+  if (advance || play) {
+    next();
+  }
+
+  lastJoystickButton = joystickButton;
 }
