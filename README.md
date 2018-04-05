@@ -1,4 +1,4 @@
-# Arduino Esplora Game Of Life
+# Arduino Esplora Game Of Life [![Build Status](https://travis-ci.org/gmussi/ArduinoEsploraGameOfLife.svg?branch=master)](https://travis-ci.org/gmussi/ArduinoEsploraGameOfLife)
 
 [Arduino Project Hub Page](https://create.arduino.cc/projecthub/imagile/conway-s-game-of-life-79bb05)
 
